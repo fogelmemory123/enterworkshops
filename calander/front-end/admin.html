@@ -1,0 +1,899 @@
+
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <title>ניהול ימי הולדת ואירועים</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            color: #34495e;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        form {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        label {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            text-align: right;
+        }
+
+        input[type="text"], input[type="date"],input[type="url"], select {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+            text-align: right;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        table {
+            width: 100%;
+            margin: 30px 0;
+            border-collapse: collapse;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 1em;
+        }
+
+        th {
+            background-color: #2ecc71;
+            color: white;
+            font-size: 1.1em;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .event-description {
+            font-size: 1.1em;
+            font-weight: bold;
+        }
+
+        .edit-btn, .delete-btn {
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .edit-btn {
+            background-color: #f1c40f;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #f39c12;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .select-branch {
+            max-width: 400px;
+            margin: 0 auto 30px;
+            text-align: center;
+        }
+
+        select#branchSelectTop {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1em;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 40px;
+        }
+
+        /* Responsive design for smaller screens */
+        @media (max-width: 600px) {
+            form {
+                max-width: 95%;
+                padding: 20px;
+            }
+
+            table {
+                width: 100%;
+            }
+
+            th, td {
+                padding: 12px;
+            }
+
+            select#branchSelectTop {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+       <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">לוח אירועים אנטר</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item"><a class="nav-link active" href="index.html">בית</a></li>
+                        <li class="nav-item"><a href="login.html" class="nav-link" id="enter">כניסה</a></li>
+                        <li class="nav-item"><a class="nav-link" id="user"></a></li>
+                         <li class="nav-item"><a href="admin.html" class="nav-link" id="user">לוח מנהל</a></li>
+                        <li class="nav-item"><a class="nav-link" id="logout"></a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    <div class="container">
+        <!-- Branch selection at the top -->
+        <h1>בחר סניף</h1>
+        <div class="select-branch">
+            <select id="branchSelectTop" name="branchSelectTop">
+                <!-- Dynamic branch options will be inserted here -->
+            </select>
+        </div>
+
+    
+
+        <h2>הוסף אירוע</h2>
+        <form id="eventForm">
+            <label for="eventDescription">שם אירוע:</label>
+            <input type="text" id="eventDescription" name="eventDescription" required>
+        
+            <label for="eventDate">תאריך מלא:</label>
+            <input type="date" id="eventDate" name="eventDate" required>
+        
+            <label for="eventLink">קישור לטופס Google:</label>
+            <input type="url" id="eventLink" name="eventLink" placeholder="הכנס קישור לטופס" required>
+        
+            <button type="button" onclick="submitEvent()">הוסף אירוע</button>
+        </form>
+        
+    <h1>הוסף יום הולדת</h1>
+        <form id="birthdayForm">
+            <label for="name">שם:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="month">חודש:</label>
+            <select id="month" name="month" required>
+                <option value="01">ינואר</option>
+                <option value="02">פברואר</option>
+                <option value="03">מרץ</option>
+                <option value="04">אפריל</option>
+                <option value="05">מאי</option>
+                <option value="06">יוני</option>
+                <option value="07">יולי</option>
+                <option value="08">אוגוסט</option>
+                <option value="09">ספטמבר</option>
+                <option value="10">אוקטובר</option>
+                <option value="11">נובמבר</option>
+                <option value="12">דצמבר</option>
+            </select>
+
+            <label for="day">יום:</label>
+            <select id="day" name="day" required>
+                <script>
+                    for (let i = 1; i <= 31; i++) {
+                        const dayValue = i < 10 ? `0${i}` : i;
+                        document.write(`<option value="${dayValue}">${i}</option>`);
+                    }
+                </script>
+            </select>
+
+            <button type="button" onclick="submitBirthday()">הוסף יום הולדת</button>
+        </form>
+ <h1>כל האירועים</h1>
+<table id="eventsTable">
+    <thead>
+        <tr>
+            <th>שם האירוע</th>
+            <th>תאריך האירוע</th>
+            <th>סניף</th>
+            <th>כמה משתתפים</th> <!-- New Column for Participant Count -->
+            <th>עריכה</th>
+            <th>מחיקה</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Dynamic content will be inserted here -->
+    </tbody>
+</table>
+
+        <h1>ימי הולדת</h1>
+        <table id="birthdaysTable">
+            <thead>
+                <tr>
+                    <th>שם</th>
+                    <th>תאריך יום ההולדת</th>
+                    <th>עריכה</th>
+                    <th>מחיקה</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic content will be inserted here -->
+            </tbody>
+        </table>
+        
+        <footer>
+            &copy; 2024 מערכת ניהול אירועים
+        </footer>
+    </div>
+    <div class="modal fade" id="participantModal" tabindex="-1" aria-labelledby="participantModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="participantModalLabel">רשימת משתתפים</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <ul class="list-group" id="participantList">
+              <!-- Participants will be dynamically inserted here -->
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">סגור</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <script>
+            const apiUrl = "http://127.0.0.1:5000/";
+        // Function to get the token from localStorage (or sessionStorage)
+        function getToken() {
+            return localStorage.getItem('access_token');
+        }
+
+        // Fetch the branches from the server and populate the top branch selector
+        async function fetchBranches() {
+            const token = getToken();
+            if (!token) {
+                alert('You are not authorized to perform this action.');
+                return;
+            }
+
+            try {
+                const response = await fetch(apiUrl+'/admin/branches', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const branches = await response.json();
+                    populateBranchSelect(branches);
+                } else {
+                    alert('שגיאה בטעינת הסניפים');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('שגיאה בחיבור לשרת');
+            }
+        }
+
+      // Populate branch dropdown
+function populateBranchSelect(branches) {
+    const branchSelectTop = document.getElementById('branchSelectTop');
+    branchSelectTop.innerHTML = '';  // Clear the select field
+
+    // Check if the first branch is 'תל אביב'
+    if (branches.length == 1) {
+        // Populate only the branches
+        branches.forEach(branch => {
+            const option = document.createElement('option');
+            option.value = branch.id;
+            option.textContent = branch.city;
+            branchSelectTop.appendChild(option);
+        });
+    } else {
+        // Add 'כל הסניפים' as the first option
+    
+    const defaultOption = document.createElement('option');
+        defaultOption.value = 'all';  // Represents all branches
+        defaultOption.textContent = 'כל הסניפים';
+       
+        branchSelectTop.appendChild(defaultOption);
+        // Populate the branches
+        branches.forEach(branch => {
+            const option = document.createElement('option');
+            option.value = branch.id;
+            option.textContent = branch.city;
+            branchSelectTop.appendChild(option);
+        });
+    }
+}
+
+        // Fetch birthdays from the server based on the selected branch
+        async function fetchBirthdays() {
+            const token = getToken();
+            const branchId = document.getElementById('branchSelectTop').value;  // Get selected branch ID
+            if (!token) {
+                alert('You are not authorized to perform this action.');
+                return;
+            }
+
+            try {
+                const response = await fetch(apiUrl+`/admin/birthdays?branch_id=${branchId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const birthdays = await response.json();
+                    displayBirthdays(birthdays);
+                } else {
+                    alert('שגיאה בטעינת ימי ההולדת');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('שגיאה בחיבור לשרת');
+            }
+        }
+
+        // Function to display the birthdays in the table
+        function displayBirthdays(birthdays) {
+            const birthdaysTableBody = document.querySelector("#birthdaysTable tbody");
+            birthdaysTableBody.innerHTML = '';  // Clear existing rows
+
+            birthdays.forEach((birthday) => {
+                const row = document.createElement('tr');
+
+                const nameCell = document.createElement('td');
+                nameCell.textContent = birthday.name;
+                row.appendChild(nameCell);
+
+                const dateCell = document.createElement('td');
+                dateCell.textContent = birthday.date;
+                row.appendChild(dateCell);
+
+                const editCell = document.createElement('td');
+                const editButton = document.createElement('button');
+                editButton.textContent = 'ערוך';
+                editButton.style.backgroundColor = '#FFDD57';
+                editButton.style.color = 'white';
+                editButton.style.border = 'none';
+                editButton.style.padding = '5px 10px';
+                editButton.style.borderRadius = '4px';
+                editButton.style.cursor = 'pointer';
+                editButton.addEventListener('click', () => editBirthday(birthday.id, birthday.name, birthday.date));
+                editCell.appendChild(editButton);
+                row.appendChild(editCell);
+
+                const deleteCell = document.createElement('td');
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'מחק';
+                deleteButton.style.backgroundColor = '#FF6347';
+                deleteButton.style.color = 'white';
+                deleteButton.style.border = 'none';
+                deleteButton.style.padding = '5px 10px';
+                deleteButton.style.borderRadius = '4px';
+                deleteButton.style.cursor = 'pointer';
+                deleteButton.addEventListener('click', () => deleteBirthday(birthday.id));
+                deleteCell.appendChild(deleteButton);
+                row.appendChild(deleteCell);
+
+                birthdaysTableBody.appendChild(row);
+            });
+        }
+        function editBirthday(birthdayId, currentName, currentDate) {
+    // Prompt the user to enter a new name and date
+    const newName = prompt('הזן שם חדש:', currentName);
+    const newDate = prompt('הזן תאריך חדש (YYYY-MM-DD):', currentDate);
+
+    if (!newName || !newDate) {
+        alert('לא הוזנו כל הנתונים הנדרשים לעריכה');
+        return;
+    }
+
+    const token = getToken();
+    if (!token) {
+        alert('You are not authorized to perform this action.');
+        return;
+    }
+
+    // Send the updated data to the server
+    fetch(apiUrl+`/admin/birthdays?id=${birthdayId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ name: newName, date: newDate })
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('יום ההולדת נערך בהצלחה');
+            fetchBirthdays();  // Refresh the list after editing
+        } else {
+            alert('עריכת יום ההולדת נכשלה');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('שגיאה בחיבור לשרת');
+    });
+}
+
+
+        // Fetch events from the server based on the selected branch
+       // Fetch events from the server based on the selected branch
+async function fetchEvents() {
+    const token = getToken();
+    const branchId = document.getElementById('branchSelectTop').value;  // Get selected branch ID
+    if (!token) {
+        alert('You are not authorized to perform this action.');
+        return;
+    }
+
+    let url = apiUrl+'/admin/events';
+    if (branchId !== 'all') {
+        url += `?branch_id=${branchId}`;  // Only filter by branch if a specific branch is selected
+    }
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        if (response.ok) {
+            const events = await response.json();
+            displayEvents(events);
+        } else {
+            alert('שגיאה בטעינת האירועים');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('שגיאה בחיבור לשרת');
+    }
+}
+
+        async function deleteEvent(eventId) {
+    const token = getToken(); // Get the token from localStorage or sessionStorage
+    if (!token) {
+        alert('You are not authorized to perform this action.');
+        return;
+    }
+
+    // Confirm if the user wants to delete the event
+    if (confirm("האם אתה בטוח שברצונך למחוק את האירוע הזה?")) {
+        try {
+            // Send DELETE request to the server
+            const response = await fetch(apiUrl+`/admin/events?id=${eventId}`, {
+                method: 'DELETE',  // HTTP method DELETE
+                headers: {
+                    'Authorization': `Bearer ${token}`  // Include token in request header
+                }
+            });
+
+            if (response.ok) {
+                alert('האירוע נמחק בהצלחה');
+                fetchEvents();  // Refresh the events table after deletion
+            } else {
+                alert('מחיקת האירוע נכשלה');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בחיבור לשרת');
+        }
+    }
+}
+
+        // Function to display events in the table
+function displayEvents(events) {
+    const eventsTableBody = document.querySelector("#eventsTable tbody");
+    eventsTableBody.innerHTML = '';  // Clear existing rows
+
+    events.forEach((event) => {
+        const row = document.createElement('tr');
+
+        const eventName = document.createElement('td');
+        // Make the event name clickable and trigger the fetchParticipants function
+        eventName.innerHTML = `<a href="#" onclick="fetchParticipants(${event.id})">${event.event_description}</a>`;
+        row.appendChild(eventName);
+
+        const eventDate = document.createElement('td');
+        eventDate.textContent = event.date;
+        row.appendChild(eventDate);
+
+        const branchCell = document.createElement('td');
+        branchCell.textContent = event.branch.city || 'לא נבחר סניף';
+        row.appendChild(branchCell);
+
+        const participantCountCell = document.createElement('td');
+        participantCountCell.textContent = event.participant_count;
+        row.appendChild(participantCountCell);
+
+        const editCell = document.createElement('td');
+        const editButton = document.createElement('button');
+        editButton.textContent = 'ערוך';
+        editButton.classList.add('edit-btn');
+        editButton.addEventListener('click', () => editEvent(event.id, event.event_description, event.date));
+        editCell.appendChild(editButton);
+        row.appendChild(editCell);
+
+        const deleteCell = document.createElement('td');
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'מחק';
+        deleteButton.classList.add('delete-btn');
+        deleteButton.addEventListener('click', () => deleteEvent(event.id));
+        deleteCell.appendChild(deleteButton);
+        row.appendChild(deleteCell);
+
+        eventsTableBody.appendChild(row);
+    });
+}
+
+
+        // Fetch events and birthdays when the branch changes
+        document.getElementById('branchSelectTop').addEventListener('change', () => {
+            fetchBirthdays();
+            fetchEvents();
+        });
+        async function submitEvent() {
+    const token = getToken();
+    if (!token) {
+        alert('You are not authorized to perform this action.');
+        return;
+    }
+
+    const eventDescription = document.getElementById('eventDescription').value;
+    const eventDate = document.getElementById('eventDate').value;
+    const branchId = document.getElementById('branchSelectTop').value; 
+    const googleForm= document.getElementById('eventLink').value;
+    console.log(branchId)  // Get selected branch ID
+
+    try {
+        const response = await fetch(apiUrl+'/admin/events', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`  // Include token in request header
+            },
+            body: JSON.stringify({ date: eventDate, event_description: eventDescription, branch_id: branchId,event: googleForm})  // Include branch_id
+        });
+
+        if (response.ok) {
+            alert('אירוע נוסף בהצלחה');
+            fetchEvents();  // Refresh the events table
+        } else {
+            alert('הוספת אירוע נכשלה');
+            fetchEvents();
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('שגיאה בחיבור לשרת');
+    }
+}
+async function submitBirthday() {
+    const token = getToken();
+    if (!token) {
+        alert('You are not authorized to perform this action.');
+        return;
+    }
+
+    const name = document.getElementById('name').value;
+    const month = document.getElementById('month').value;
+    const day = document.getElementById('day').value;
+    const branchId = document.getElementById('branchSelectTop').value;  // Get selected branch ID
+
+    const date = `${month}-${day}`;  // Format date as MM-DD
+
+    try {
+        const response = await fetch(apiUrl+'/admin/birthdays', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`  // Include token in request header
+            },
+            body: JSON.stringify({ name: name, date: date, branch_id: branchId })  // Include branch_id
+        });
+
+        if (response.ok) {
+            alert('יום ההולדת נוסף בהצלחה');
+            fetchBirthdays();  // Refresh the birthdays table
+        } else {
+            alert('הוספת יום ההולדת נכשלה');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('שגיאה בחיבור לשרת');
+    }
+}
+async function deleteBirthday(birthdayId) {
+    const token = getToken(); // Get the token from localStorage or sessionStorage
+    if (!token) {
+        alert('You are not authorized to perform this action.');
+        return;
+    }
+     
+    // Confirm if the user wants to delete the birthday
+    if (confirm("האם אתה בטוח שברצונך למחוק את יום ההולדת הזה?")) {
+        try {
+            // Send DELETE request to the server
+            const response = await fetch(apiUrl+`/admin/birthdays?id=${birthdayId}`, {
+                method: 'DELETE',  // HTTP method DELETE
+                headers: {
+                    'Authorization': `Bearer ${token}`  // Include token in request header
+                }
+            });
+
+            if (response.ok) {
+                alert('יום ההולדת נמחק בהצלחה');
+                fetchBirthdays();  // Refresh the birthdays table after deletion
+            } else {
+                alert('מחיקת יום ההולדת נכשלה');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('שגיאה בחיבור לשרת');
+        }
+    }
+}
+function editEvent(eventId, currentDescription, currentDate,currentForm) {
+    // Prompt the user for new event details
+    console.log(currentForm)
+    const newDescription = prompt('הזן תיאור אירוע חדש:', currentDescription);
+    const newDate = prompt('הזן תאריך חדש (YYYY-MM-DD):', currentDate);
+    const form = prompt('הזן לינק חדש',currentForm);
+    
+    if (!newDescription || !newDate) {
+        alert('לא הוזנו כל הנתונים הנדרשים לעריכה');
+        return;
+    }
+
+    const token = getToken(); // Get the token from localStorage or sessionStorage
+    if (!token) {
+        alert('You are not authorized to perform this action.');
+        return;
+    }
+
+    // Send the updated event details to the server
+    fetch(apiUrl+`/admin/events?id=${eventId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ event_description: newDescription, date: newDate,form:form })
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('האירוע נערך בהצלחה');
+            fetchEvents();  // Refresh the events table after editing
+        } else {
+            alert('עריכת האירוע נכשלה');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('שגיאה בחיבור לשרת');
+    });
+}
+async function getUsername() {
+
+            const token = getToken();
+            if (!token) {
+                console.error('No token found');
+                return [];
+            }
+    try {
+        const response = await fetch(apiUrl+'/username', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}` , // JWT token from local storage
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch username');
+        }
+
+        const data = await response.json();
+        console.log(data)
+        document.getElementById('user').innerHTML = `שלום לך ${data.username}`;
+        document.getElementById('logout').innerHTML = `יצא`;
+        document.getElementById('enter').innerHTML = "";
+
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('user').innerHTML = 'Error fetching username';
+    }
+}
+getUsername();
+
+document.getElementById('logout').onclick = function () {
+    // Remove the access token from local storage
+    localStorage.removeItem('access_token');
+    
+    // Display a confirmation message
+    alert('התנתקת בהצלחה!');
+
+    // Redirect to the login page or home page
+    window.location.href = 'login.html';
+};
+window.onload = function () {
+            const token = localStorage.getItem('access_token');
+            if (!token) {
+                // If no token, redirect to the login page
+                window.location.href = 'login.html';
+            }
+        };
+        // Fetch branches, birthdays, and events on page load
+        fetchBranches();
+        fetchBirthdays();  // Initially load birthdays for the selected branch
+        fetchEvents();
+ // 30000 milliseconds = 30 seconds
+// Function to display participants in the modal
+function displayParticipants(participants, eventId) { // Accept eventId as parameter
+    const participantList = document.getElementById('participantList');
+    participantList.innerHTML = ''; // Clear existing participants
+
+    if (participants.length === 0) {
+        participantList.innerHTML = '<li class="list-group-item">אין משתתפים לאירוע זה</li>';
+        return;
+    }
+
+    participants.forEach(participant => {
+        const listItem = document.createElement('li');
+        listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+        
+        listItem.textContent = `${participant.name} - ${participant.email}`;
+        
+        const deleteButton = document.createElement('button');
+        deleteButton.classList.add('btn', 'btn-danger', 'btn-sm', 'ms-3');
+        deleteButton.textContent = 'מחק';
+        deleteButton.onclick = () => deleteParticipant(participant.id, eventId); // Pass eventId here
+
+        listItem.appendChild(deleteButton);
+        participantList.appendChild(listItem);
+    });
+
+    // Show the modal
+    const participantModal = new bootstrap.Modal(document.getElementById('participantModal'));
+    participantModal.show();
+}
+
+async function deleteParticipant(participantId, eventId) {
+    const token = getToken();
+    if (!token) {
+        alert('You are not authorized to perform this action.');
+        return;
+    }
+
+    try {
+        const response = await fetch(apiUrl+`/api/events/${eventId}/participants/${participantId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            alert('משתתף נמחק בהצלחה');
+            fetchParticipants(eventId); // Refresh the participant list after deletion
+        } else {
+            const errorText = await response.text();
+            console.error('Server error:', errorText);
+            alert(`שגיאה במחיקת המשתתף: ${errorText}`);
+        }
+    } catch (error) {
+        console.error('Error connecting to the server:', error);
+        alert('שגיאה בחיבור לשרת');
+    }
+}
+
+
+
+// Function to fetch participants for a specific event
+async function fetchParticipants(eventId) {
+    const token = getToken();
+    if (!token) {
+        alert('You are not authorized to perform this action.');
+        return;
+    }
+
+    try {
+        const response = await fetch(apiUrl+`/api/events/${eventId}/participants/1`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (response.ok) {
+            const participants = await response.json();
+            displayParticipants(participants, eventId); // Pass eventId here
+        } else {
+            alert('שגיאה בטעינת המשתתפים');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('שגיאה בחיבור לשרת');
+    }
+}
+function onEventNameClick(eventId) {
+    fetchParticipants(eventId); // Calls fetchParticipants with the correct eventId
+}
+
+
+
+
+        // Initially load events for the selected branch
+    </script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"></script>
+</body>
+</html>

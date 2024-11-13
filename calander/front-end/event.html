@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פרטי אירוע</title>
+    <style>
+        /* Basic resets and body styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        /* Header and text styling */
+        .event-details h1, .registration-form h2, .participants-list h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 15px;
+        }
+
+        .event-details p {
+            font-size: 1.15em;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        /* Form styling */
+        label {
+            font-weight: bold;
+            color: #34495e;
+            margin-top: 15px;
+            display: block;
+            text-align: right;
+        }
+
+        input[type="text"], input[type="email"] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            color: #34495e;
+        }
+
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            transition: background-color 0.3s ease;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        #successMessage {
+            color: green;
+            font-weight: bold;
+            margin-top: 15px;
+            display: none;
+        }
+
+        #errorMessage {
+            color: red;
+            font-weight: bold;
+            margin-top: 15px;
+            display: none;
+        }
+
+        /* Participant table styling */
+        .participants-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .participants-table th, .participants-table td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+            font-size: 1em;
+        }
+
+        .participants-table th {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: bold;
+        }
+
+        .participants-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Responsive design */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .event-details h1, .registration-form h2, .participants-list h2 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Event Details Section -->
+        <div class="event-details">
+            <h1 id="eventTitle">פרטי האירוע</h1>
+            <p><strong>תאריך:</strong> <span id="eventDate"></span></p>
+            <p><strong>תיאור האירוע:</strong> <span id="eventDescription"></span></p>
+            <p><strong>עיר הסניף:</strong> <span id="branchCity"></span></p>
+        </div>
+
+        <!-- Registration Form Section -->
+        <div class="registration-form">
+            <h2>הרשמה לאירוע</h2>
+            <form id="registrationForm">
+                <label for="name">שם מלא:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="email">כתובת דוא"ל:</label>
+                <input type="email" id="email" name="email" required>
+
+                <button type="button" onclick="registerParticipant()">הרשמה</button>
+            </form>
+            <p id="successMessage">נרשמת בהצלחה!</p>
+            <p id="errorMessage">הרשמה נכשלה. נסה שוב.</p>
+        </div>
+
+        <!-- Registered Participants List Section -->
+        <div class="participants-list">
+            <h2>משתתפים שנרשמו</h2>
+            <table class="participants-table" id="participantsTable">
+                <thead>
+                    <tr>
+                        <th>שם</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Participant data will be inserted here by JavaScript -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const apiUrl = "http://127.0.0.1:5000/"
+        function getQueryParam(param) {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        // Fetch event details from the API and display them
+        async function fetchEventDetails() {
+            const eventId = getQueryParam('id');
+
+            if (!eventId) {
+                document.getElementById('eventTitle').textContent = "אירוע לא נמצא";
+                return;
+            }
+
+            try {
+                const response = await fetch(`${apiUrl}/api/events/${eventId}`);
+
+                if (!response.ok) throw new Error('Event not found');
+                
+                const event = await response.json();
+                
+                // Populate the page with event details
+                document.getElementById('eventDate').textContent = event.date;
+                document.getElementById('eventDescription').textContent = event.event_description;
+                document.getElementById('branchCity').textContent = event.branch_city;
+
+                // Fetch participants after loading event details
+                fetchParticipants(eventId);
+
+            } catch (error) {
+                console.error('Error fetching event details:', error);
+                document.getElementById('eventTitle').textContent = "אירוע לא נמצא";
+            }
+        }
+
+        // Fetch participants for the event
+        async function fetchParticipants(eventId) {
+            try {
+                const response = await fetch(apiUrl+`/api/events/${eventId}/participants/1`);
+                if (!response.ok) throw new Error('Failed to fetch participants');
+
+                const participants = await response.json();
+                displayParticipants(participants);
+
+            } catch (error) {
+                console.error('Error fetching participants:', error);
+            }
+        }
+
+        // Display participants in the table
+        function displayParticipants(participants) {
+            const tableBody = document.getElementById('participantsTable').querySelector('tbody');
+            tableBody.innerHTML = '';  // Clear any existing rows
+
+            participants.forEach(participant => {
+                const row = document.createElement('tr');
+                
+                const nameCell = document.createElement('td');
+                nameCell.textContent = participant.name;
+                row.appendChild(nameCell);
+
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Register the participant for the event
+        async function registerParticipant() {
+            const eventId = getQueryParam('id');
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+
+            try {
+                const response = await fetch(apiUrl+'/api/events/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ event_id: eventId, name: name, email: email ,branch_id:1})
+                });
+
+                if (response.ok) {
+                    document.getElementById('successMessage').style.display = 'block';
+                    document.getElementById('errorMessage').style.display = 'none';
+                    document.getElementById('registrationForm').reset();
+
+                    // Refresh the participants list after successful registration
+                    fetchParticipants(eventId);
+                } else {
+                    document.getElementById('successMessage').style.display = 'none';
+                    document.getElementById('errorMessage').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error registering participant:', error);
+                document.getElementById('successMessage').style.display = 'none';
+                document.getElementById('errorMessage').style.display = 'block';
+            }
+        }
+
+        // Fetch and display the event details and participants when the page loads
+        fetchEventDetails();
+    </script>
+
+</body>
+</html>
+
